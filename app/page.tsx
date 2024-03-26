@@ -9,17 +9,18 @@ export default function Home() {
   const [status, setStatus] = useState<string>("")
   const [guess, setGuess] = useState<string>("")
   const [guesses, setGuesses] = useState<number>(0)
+  const [s, setS] = useState<SpeechSynthesis>()
+  const [voice, setVoice] = useState<SpeechSynthesisVoice | null>(null)
 
   function talk(text: string) {
     const message = new SpeechSynthesisUtterance();
 // set the text to be spoken
+    message.voice = voice;
     message.text = text;
 
-    // create an instance of the speech synthesis object
-    const speechSynthesis = window.speechSynthesis;
-
     // start speaking
-    speechSynthesis.speak(message);
+    s?.speak(message);
+    alert(message.voice)
   }
 
   function genWord() {
@@ -34,6 +35,7 @@ export default function Home() {
   }
 
   useEffect(() => {
+    setS(window.speechSynthesis!)
     genWord()
   }, [])
 
@@ -53,6 +55,14 @@ export default function Home() {
       genWord()
     }
   }
+  
+  function handleVoiceSelection(ame: string) {
+      const voices = window.speechSynthesis.getVoices()
+      const voice = voices.find(v => v.name == ame)
+      if (!voice) return;
+      setVoice(voice)
+      alert(voice?.name + " " + ame)
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
@@ -62,6 +72,11 @@ export default function Home() {
           <button className="bg-green-500 rounded-xl text-white px-4 py-2" onClick={() => talk(word)}>Pronounce</button>
           <button className="text-green-500 rounded-xl border border-green-500 px-4 py-2">Definition</button>
         </div>
+        <div className="grid grid-cols-12">
+            {s?.getVoices()?.map((voice) => (
+              <button className="text-green-500 rounded-xl border border-green-500 px-4 py-2" onClick={() => handleVoiceSelection(voice.name)}>Select {voice.name}</button>
+            ))}
+          \</div>
         <input className="outline-none bg-transparent border-2 border-blue-500 px-6 py-2 rounded-2xl" value={guess} onChange={(e) => setGuess(e.target.value)} placeholder="Type your guess here"  />
         <button className="bg-blue-500 rounded-xl text-white px-4 py-2" onClick={() => void guessWord()}>Check</button>
       </div>
