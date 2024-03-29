@@ -31,6 +31,12 @@ export default function Home() {
         setStatus("")
         setGuesses(0)
         setGuess("")
+        fetch(`https://dictionaryapi.com/api/v3/references/sd4/json/${data}?key=032ab02f-645a-4e46-8f68-4abf5c8d0ec0`)
+          .then(res => res.json())
+          .then(data => {
+            console.log(data)
+            alert(data)
+          })
       })
   }
 
