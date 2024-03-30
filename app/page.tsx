@@ -11,6 +11,7 @@ export default function Home() {
   const [guesses, setGuesses] = useState<number>(0)
   const [s, setS] = useState<SpeechSynthesis>()
   const [voice, setVoice] = useState<SpeechSynthesisVoice | null>(null)
+  const [wordInfo, setWordInfo] = useState<any>({})
 
   function talk(text: string) {
     const message = new SpeechSynthesisUtterance();
@@ -31,11 +32,10 @@ export default function Home() {
         setStatus("")
         setGuesses(0)
         setGuess("")
-        fetch(`https://dictionaryapi.com/api/v3/references/sd4/json/${data}?key=032ab02f-645a-4e46-8f68-4abf5c8d0ec0`)
+        fetch(`https://dictionaryapi.com/api/v3/references/collegiate/json/${data}?key=57d7fb45-77d0-4842-9080-edd955c35b82`)
           .then(res => res.json())
-          .then(data => {
-            console.log(data)
-            alert(data)
+          .then(d => {
+            setWordInfo(d)
           })
       })
   }
@@ -70,19 +70,52 @@ export default function Home() {
       alert(voice?.name + " " + ame)
   }
 
+  function handleDef() {
+    if(Array.isArray(wordInfo) && wordInfo[0]["shortdef"]) {
+      let words = wordInfo[0]["shortdef"].join("; another definition is,  ")
+
+      const message = new SpeechSynthesisUtterance();
+  // set the text to be spoken
+      message.voice = voice;
+      message.text = words;
+
+      // start speaking
+      s?.speak(message);
+      alert(message.voice)
+    }
+  }
+  
+  function ety() {
+    if(Array.isArray(wordInfo) && wordInfo[0]["et"]) {
+      let sen = ""
+      let root = wordInfo[0]["et"]
+      for(root in wordInfo[0]["et"]) {
+        sen = sen + wordInfo[0]["et"][1]
+      }
+      const message = new SpeechSynthesisUtterance();
+  // set the text to be spoken
+      message.voice = voice;
+      message.text = sen;
+
+      // start speaking
+      s?.speak(message);
+      alert(message.voice)
+  }}
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="flex space-y-4 flex-col items-center">
         <h1 className="text-4xl font-bold text-center">{status}</h1>
         <div className="space-x-5 py-4 flex flex-row">
           <button className="bg-green-500 rounded-xl text-white px-4 py-2" onClick={() => talk(word)}>Pronounce</button>
-          <button className="text-green-500 rounded-xl border border-green-500 px-4 py-2">Definition</button>
+          <button className="text-green-500 rounded-xl border border-green-500 px-4 py-2" onClick={() => handleDef()}>Definition</button>
+          <button className="text-green-500 rounded-xl border border-green-500 px-4 py-2" onClick={() => ety()}>Etymology</button>
         </div>
-        <div className="grid grid-cols-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
             {s?.getVoices()?.map((voice) => (
               <button className="text-green-500 rounded-xl border border-green-500 px-4 py-2" onClick={() => handleVoiceSelection(voice.name)}>Select {voice.name}</button>
             ))}
-          \</div>
+          </div>
         <input className="outline-none bg-transparent border-2 border-blue-500 px-6 py-2 rounded-2xl" value={guess} onChange={(e) => setGuess(e.target.value)} placeholder="Type your guess here"  />
         <button className="bg-blue-500 rounded-xl text-white px-4 py-2" onClick={() => void guessWord()}>Check</button>
       </div>
