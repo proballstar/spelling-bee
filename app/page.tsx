@@ -86,12 +86,15 @@ export default function Home() {
   }
   
   function ety() {
-    if(Array.isArray(wordInfo) && wordInfo[0]["et"]) {
+    if(Array.isArray(wordInfo)) {
       let sen = ""
-      let root = wordInfo[0]["et"]
-      for(root in wordInfo[0]["et"]) {
-        sen = sen + wordInfo[0]["et"][1]
-      }
+      alert(sen)
+      wordInfo[0]["et"].forEach((root: any) => {
+        alert(root)
+        sen = sen + root[1] + " "
+      })
+      alert(sen)
+
       const message = new SpeechSynthesisUtterance();
   // set the text to be spoken
       message.voice = voice;
@@ -111,11 +114,13 @@ export default function Home() {
           <button className="text-green-500 rounded-xl border border-green-500 px-4 py-2" onClick={() => handleDef()}>Definition</button>
           <button className="text-green-500 rounded-xl border border-green-500 px-4 py-2" onClick={() => ety()}>Etymology</button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+        <div className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 2xl:w-1/6">
+          <select className="w-full h-10 pl-3 pr-6 text-base placeholder-gray-600 border rounded-lg appearance-none focus:shadow-outline" onChange={(e) => handleVoiceSelection(e.target.value)}>
             {s?.getVoices()?.map((voice) => (
-              <button className="text-green-500 rounded-xl border border-green-500 px-4 py-2" onClick={() => handleVoiceSelection(voice.name)}>Select {voice.name}</button>
+              <option value={voice.name}>{voice.name}</option>
             ))}
-          </div>
+          </select>
+        </div>
         <input className="outline-none bg-transparent border-2 border-blue-500 px-6 py-2 rounded-2xl" value={guess} onChange={(e) => setGuess(e.target.value)} placeholder="Type your guess here"  />
         <button className="bg-blue-500 rounded-xl text-white px-4 py-2" onClick={() => void guessWord()}>Check</button>
       </div>
