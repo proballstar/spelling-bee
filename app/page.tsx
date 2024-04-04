@@ -47,7 +47,7 @@ export default function Home() {
 
   async function guessWord() {
     if(guesses < 3) {
-      if(guess === word) {
+      if(guess.toLowerCase() === word.toLowerCase()) {
         setStatus("Correct")
         await new Promise(r => setTimeout(r, 5000));
         genWord()
@@ -114,7 +114,7 @@ export default function Home() {
           <button className="text-green-500 rounded-xl border border-green-500 px-4 py-2" onClick={() => handleDef()}>Definition</button>
           <button className="text-green-500 rounded-xl border border-green-500 px-4 py-2" onClick={() => ety()}>Etymology</button>
         </div>
-        <div className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 2xl:w-1/6">
+        <div className="w-full">
           <select className="w-full h-10 pl-3 pr-6 text-base placeholder-gray-600 border rounded-lg appearance-none focus:shadow-outline" onChange={(e) => handleVoiceSelection(e.target.value)}>
             {s?.getVoices()?.map((voice) => (
               <option value={voice.name}>{voice.name}</option>
