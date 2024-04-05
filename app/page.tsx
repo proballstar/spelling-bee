@@ -12,6 +12,7 @@ export default function Home() {
   const [s, setS] = useState<SpeechSynthesis>()
   const [voice, setVoice] = useState<SpeechSynthesisVoice | null>(null)
   const [wordInfo, setWordInfo] = useState<any>({})
+  const [ETY, setETY] = useState<string>("")
 
   function talk(text: string) {
     const message = new SpeechSynthesisUtterance();
@@ -35,7 +36,19 @@ export default function Home() {
         fetch(`https://dictionaryapi.com/api/v3/references/collegiate/json/${data}?key=57d7fb45-77d0-4842-9080-edd955c35b82`)
           .then(res => res.json())
           .then(d => {
-            setWordInfo(d)
+            setWordInfo(d[0])
+            console.log(d[0])
+            let ets = d[0]["et"]
+            let expr = ""
+            if(Array.isArray(ets) && ets) {
+              ets.forEach((et: any) => {
+                expr = expr + et[1] + " "
+              })
+              console.log("FIRST ET" + d[0]["et"][0])
+              console.table("DATA OBJ", d[0])
+              console.log("SEPERATE ET" + JSON.stringify(ets) + "CREATING /n \n" + expr)
+              setETY(expr)
+            }
           })
       })
   }
@@ -70,6 +83,7 @@ export default function Home() {
       alert(voice?.name + " " + ame)
   }
 
+
   function handleDef() {
     if(Array.isArray(wordInfo) && wordInfo[0]["shortdef"]) {
       let words = wordInfo[0]["shortdef"].join("; another definition is,  ")
@@ -86,24 +100,18 @@ export default function Home() {
   }
   
   function ety() {
-    if(Array.isArray(wordInfo)) {
-      let sen = ""
-      alert(sen)
-      wordInfo[0]["et"].forEach((root: any) => {
-        alert(root)
-        sen = sen + root[1] + " "
-      })
-      alert(sen)
+    alert(ETY)
 
-      const message = new SpeechSynthesisUtterance();
-  // set the text to be spoken
-      message.voice = voice;
-      message.text = sen;
+    const message = new SpeechSynthesisUtterance();
+    // set the text to be spoken
+    message.voice = voice;
+    message.text = ETY;
 
-      // start speaking
-      s?.speak(message);
-      alert(message.voice)
-  }}
+    // start speaking
+    s?.speak(message);
+    alert(message.voice)
+      
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
@@ -113,6 +121,7 @@ export default function Home() {
           <button className="bg-green-500 rounded-xl text-white px-4 py-2" onClick={() => talk(word)}>Pronounce</button>
           <button className="text-green-500 rounded-xl border border-green-500 px-4 py-2" onClick={() => handleDef()}>Definition</button>
           <button className="text-green-500 rounded-xl border border-green-500 px-4 py-2" onClick={() => ety()}>Etymology</button>
+          {/* {Array.isArray(wordInfo) && wordInfo && JSON.stringify(Object.keys(wordInfo[0]))} */}
         </div>
         <div className="w-full">
           <select className="w-full h-10 pl-3 pr-6 text-base placeholder-gray-600 border rounded-lg appearance-none focus:shadow-outline" onChange={(e) => handleVoiceSelection(e.target.value)}>
