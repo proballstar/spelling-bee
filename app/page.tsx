@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { APIInterface, handleAPIResult } from "./lib/handleWords";
 
@@ -44,7 +43,6 @@ export default function Home() {
         fetch(`https://dictionaryapi.com/api/v3/references/collegiate/json/${data}?key=57d7fb45-77d0-4842-9080-edd955c35b82`)
           .then(res => res.json())
           .then(d => {
-            alert(d)
             if(d[0]) {
               setD(d)
             }
@@ -97,23 +95,27 @@ export default function Home() {
             }}
           >Pronounce
           </button>
-          <button 
-            className="text-green-500 rounded-xl border border-green-500 px-4 py-2" 
-            onClick={() => {
-              speak(wordInfo.definition.value)
-            
-            }}
-          >
-              Definition
-          </button>
-          <button 
-            className="text-green-500 rounded-xl border border-green-500 px-4 py-2" 
-            onClick={() => {
-              speak(wordInfo.etymology.value)
-            }}
-          >
+          {wordInfo.definition.exist && (
+            <button 
+              className="text-green-500 rounded-xl border border-green-500 px-4 py-2" 
+              onClick={() => {
+                speak(wordInfo.definition.value)
+              
+              }}
+            >
+                Definition
+            </button>
+          )}
+          {wordInfo.etymology.exist && (
+            <button 
+              className="text-green-500 rounded-xl border border-green-500 px-4 py-2" 
+              onClick={() => {
+                speak(wordInfo.etymology.value)
+              }}
+            >
             Etymology
           </button>
+          )}
         </div>
         <div className="w-full">
           <select className="w-full h-10 pl-3 pr-6 text-base placeholder-gray-600 border rounded-lg appearance-none focus:shadow-outline" onChange={(e) => handleVoiceSelection(e.target.value)}>

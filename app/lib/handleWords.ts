@@ -65,6 +65,12 @@ function handleEtymology(wordInfo: any): APIEntity {
         }
         sen = sen + ets[1] + "in addition,"
     })
+    if(sen == "") {
+        return {
+            value: "No etymology available at the moment",
+            exist: false
+        }
+    }
     return {
         value: sen,
         exist: true
