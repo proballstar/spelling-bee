@@ -2,6 +2,9 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { APIInterface, handleAPIResult } from "./lib/handleWords";
+
+
 
 export default function Home() {
 
@@ -10,19 +13,24 @@ export default function Home() {
   const [guess, setGuess] = useState<string>("")
   const [guesses, setGuesses] = useState<number>(0)
   const [s, setS] = useState<SpeechSynthesis>()
+  const [d, setD] = useState<any>([])
   const [voice, setVoice] = useState<SpeechSynthesisVoice | null>(null)
-  const [wordInfo, setWordInfo] = useState<any>({})
-  const [ETY, setETY] = useState<string>("")
+  const [wordInfo, setWordInfo] = useState<APIInterface>({
+    definition: {
+      value: "Not available yet...",
+      exist: false
+    },
+    etymology: {
+      value: "Not available yet...",
+      exist: false
+    }
+  })
 
-  function talk(text: string) {
+  function speak(text: string) {
     const message = new SpeechSynthesisUtterance();
-// set the text to be spoken
-    message.voice = voice;
     message.text = text;
-
-    // start speaking
+    message.voice = voice;
     s?.speak(message);
-    alert(message.voice)
   }
 
   function genWord() {
@@ -36,18 +44,9 @@ export default function Home() {
         fetch(`https://dictionaryapi.com/api/v3/references/collegiate/json/${data}?key=57d7fb45-77d0-4842-9080-edd955c35b82`)
           .then(res => res.json())
           .then(d => {
-            setWordInfo(d[0])
-            console.log(d[0])
-            let ets = d[0]["et"]
-            let expr = ""
-            if(Array.isArray(ets) && ets) {
-              ets.forEach((et: any) => {
-                expr = expr + et[1] + " "
-              })
-              console.log("FIRST ET" + d[0]["et"][0])
-              console.table("DATA OBJ", d[0])
-              console.log("SEPERATE ET" + JSON.stringify(ets) + "CREATING /n \n" + expr)
-              setETY(expr)
+            alert(d)
+            if(d[0]) {
+              setD(d)
             }
           })
       })
@@ -57,6 +56,10 @@ export default function Home() {
     setS(window.speechSynthesis!)
     genWord()
   }, [])
+
+  useEffect(() => {
+    setWordInfo(handleAPIResult(d))
+  }, [d])
 
   async function guessWord() {
     if(guesses < 3) {
@@ -80,37 +83,6 @@ export default function Home() {
       const voice = voices.find(v => v.name == ame)
       if (!voice) return;
       setVoice(voice)
-      alert(voice?.name + " " + ame)
-  }
-
-
-  function handleDef() {
-    if(Array.isArray(wordInfo) && wordInfo[0]["shortdef"]) {
-      let words = wordInfo[0]["shortdef"].join("; another definition is,  ")
-
-      const message = new SpeechSynthesisUtterance();
-  // set the text to be spoken
-      message.voice = voice;
-      message.text = words;
-
-      // start speaking
-      s?.speak(message);
-      alert(message.voice)
-    }
-  }
-  
-  function ety() {
-    alert(ETY)
-
-    const message = new SpeechSynthesisUtterance();
-    // set the text to be spoken
-    message.voice = voice;
-    message.text = ETY;
-
-    // start speaking
-    s?.speak(message);
-    alert(message.voice)
-      
   }
 
   return (
@@ -118,10 +90,30 @@ export default function Home() {
       <div className="flex space-y-4 flex-col items-center">
         <h1 className="text-4xl font-bold text-center">{status}</h1>
         <div className="space-x-5 py-4 flex flex-row">
-          <button className="bg-green-500 rounded-xl text-white px-4 py-2" onClick={() => talk(word)}>Pronounce</button>
-          <button className="text-green-500 rounded-xl border border-green-500 px-4 py-2" onClick={() => handleDef()}>Definition</button>
-          <button className="text-green-500 rounded-xl border border-green-500 px-4 py-2" onClick={() => ety()}>Etymology</button>
-          {/* {Array.isArray(wordInfo) && wordInfo && JSON.stringify(Object.keys(wordInfo[0]))} */}
+          <button 
+            className="bg-green-500 rounded-xl text-white px-4 py-2" 
+            onClick={() => {
+              speak(word)
+            }}
+          >Pronounce
+          </button>
+          <button 
+            className="text-green-500 rounded-xl border border-green-500 px-4 py-2" 
+            onClick={() => {
+              speak(wordInfo.definition.value)
+            
+            }}
+          >
+              Definition
+          </button>
+          <button 
+            className="text-green-500 rounded-xl border border-green-500 px-4 py-2" 
+            onClick={() => {
+              speak(wordInfo.etymology.value)
+            }}
+          >
+            Etymology
+          </button>
         </div>
         <div className="w-full">
           <select className="w-full h-10 pl-3 pr-6 text-base placeholder-gray-600 border rounded-lg appearance-none focus:shadow-outline" onChange={(e) => handleVoiceSelection(e.target.value)}>
